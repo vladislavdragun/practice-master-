@@ -1,0 +1,271 @@
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Bike model page</title>
+<script src="js/jquery-3.5.1.js"></script>
+<script type="text/javascript">
+  jQuery( document ).ready(function() {
+    //Send ajax request for show product list
+    jQuery.ajax({
+      url: 'rest/model/getAllModels',
+      dataType: 'json',
+      type: 'GET',
+      success: function(data) {
+        jQuery('#headerrow').after(createDataRowsFromJson(data));
+      }
+    });
+    jQuery( "#addmodel").click(function() {
+      var url = 'rest/model/addModel/name/' +
+        jQuery("#model_name").val() + '/description/' +
+        jQuery("#model_description").val() + '/price/' +
+        jQuery("#model_price").val() + '/sname/' +
+        jQuery("#model_sname").val() + '/seller/' +
+        jQuery("#seller_id").val();
+      //Send ajax request for adding new product
+      jQuery.ajax({
+        url: url,
+        dataType: 'json',
+        type: 'PUT',
+        success: function(data) {
+          //Send ajax request for refresh product list after adding product
+          jQuery.ajax({
+            url: 'rest/model/getAllModels',
+            dataType: 'json',
+            type: 'GET',
+            success: function(data) {
+              jQuery('.datarow').remove();
+              jQuery('#headerrow').after(createDataRowsFromJson(data));
+              jQuery("#model_name").val('');
+              jQuery("#model_description").val('');
+              jQuery("#model_price").val('');
+              jQuery("#model_sname").val('');
+              jQuery("#seller_id").val('');
+            }
+          });
+        }
+      });
+    });
+  });
+
+  function createDataRowsFromJson(data) {
+    var tableContent = "";
+    for (var key in data) {
+      if (data.hasOwnProperty(key)) {
+        tableContent = tableContent + "<tr class='datarow'>";
+        tableContent = tableContent + "<td>";
+        tableContent = tableContent + data[key].id;
+        tableContent = tableContent + "</td>";
+        tableContent = tableContent + "<td>";
+        tableContent = tableContent + data[key].name;
+        tableContent = tableContent + "</td>";
+        tableContent = tableContent + "<td>";
+        tableContent = tableContent + data[key].description;
+        tableContent = tableContent + "</td>";
+        tableContent = tableContent + "<td>";
+        tableContent = tableContent + data[key].price;
+        tableContent = tableContent + "</td>";
+        tableContent = tableContent + "<td>";
+        tableContent = tableContent + data[key].sname;
+        tableContent = tableContent + "</td>";
+        tableContent = tableContent + "<td>";
+        tableContent = tableContent + data[key].seller.id;
+        tableContent = tableContent + "</td>";
+        tableContent = tableContent + "<td>";
+        tableContent = tableContent + "<input type='button'onclick=' deleteModel(" + data[key].id + ")' value='Delete model'/>";
+        tableContent = tableContent + "<input type='button' onclick='editModel(this)' value='Edit model'/>";
+        tableContent = tableContent + "</td>";
+        tableContent = tableContent + "</tr>";
+      }
+    }
+    return tableContent;
+  }
+
+  function deleteModel(id) {
+    var url = 'rest/model/deleteModel/' + id;
+    //Send ajax request for deleting product
+    jQuery.ajax({
+      url: url,
+      dataType: 'json',
+      type: 'DELETE',
+      success: function(data) {
+        jQuery.ajax({
+          url: 'rest/product/getAllModels',
+          dataType: 'json',
+          type: 'GET',
+          success: function(data) {
+            jQuery('.datarow').remove();
+            jQuery('#headerrow').after(createDataRowsFromJson(data));
+          }
+        });
+      }
+    });
+  }
+
+  function editModel(button) {
+    jQuery(button).closest('tr').children().each(function(index, value){
+      if(index == 1){
+        jQuery(this).html("<input type='text' id='editname' value='" +
+          jQuery(this).text() + "'/>");
+      } else if(index == 2){
+        jQuery(this).html("<input type='text' id='editdescription' value='" +
+          jQuery(this).text() + "'/>");
+      } else if(index == 3){
+          jQuery(this).html("<input type='text' id='editprice' value='" +
+            jQuery(this).text() + "'/>");
+      } else if(index == 4){
+          jQuery(this).html("<input type='text' id='editsname' value='" +
+            jQuery(this).text() + "'/>");
+      } else if(index == 5){
+          jQuery(this).html("<input type='text' id='editsellerid' value='" +
+            jQuery(this).text() + "'/>");
+      } else if (index == 6){
+        var actionHtml = "<input type='button' onclick='applyEditModel(this)' value='Update model'/>"
+        actionHtml = actionHtml + "<input type='button' onclick='cancelEdit(this)' value='Cancel edit'/>"
+        jQuery(this).html(actionHtml);	
+      }
+    });
+  }
+
+  function cancelEdit(button) {
+    var id;
+    jQuery(button).closest('tr').children().each(function(index, value){
+      if(index == 0){
+        id = jQuery(this).text();
+      } else if(index != 0 && index != 6){
+        jQuery(this).html(jQuery(this).find('input').val());	
+      } else if (index == 6){
+        var actionHtml = "<input type='button' onclick='deleteModel(" + id + ")' value='Delete model'/>"
+        actionHtml = actionHtml + "<input type='button' onclick='editModel(this)' value='Edit model'/>"
+        jQuery(this).html(actionHtml);	
+      }
+    });
+  }
+
+  function applyEditModel(button){
+    var id, name, description, price, sname, seller;
+    jQuery(button).closest('tr').children().each(function(index, value){
+      if(index == 0){
+        id = jQuery(this).text();
+      } else if(index == 1){
+        name = jQuery(this).find('input').val();
+      } else if (index == 2){
+        description = jQuery(this).find('input').val();
+      } else if (index == 3){
+        price = jQuery(this).find('input').val();
+      } else if (index == 4){
+        sname = jQuery(this).find('input').val();
+      } else if (index == 5){
+        seller = jQuery(this).find('input').val();
+      }
+    });
+    //Send ajax request for upating product
+    var url = 'rest/model/updateModel/id/' + id + '/name/' + name + '/description/' + description + '/price/' + price + '/sname/' + sname + '/seller/' + seller;
+    jQuery.ajax({
+      url: url,
+      dataType: 'json',
+      type: 'POST',
+      success: function(data) {
+        jQuery.ajax({
+          url: 'rest/model/getAllModels',
+          dataType: 'json',
+          type: 'GET',
+          success: function(data) {
+            jQuery('.datarow').remove();
+            jQuery('#headerrow').after(createDataRowsFromJson(data));
+          }
+        });
+      }
+    });
+  }
+</script>
+</head>
+<body>
+  <h1>Models of bicycles that are in stock</h1>
+  <table style="width: 100%" border="1" id="product">
+    <tr id="headerrow">
+      <td>Id</td>
+      <td>Name</td>
+      <td>Description</td>
+      <td>Price</td>
+      <td>Seller name</td>
+      <td>Seller id</td>
+      <td>Action</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><input type="text" name="model_name" id="model_name" required/></td>
+      <td><input type="text" name="model_description"
+        id="model_description" required/></td>
+      <td><input type="text" name="model_price" id="model_price" required minlength="2" maxlength="10" pattern="^[ 0-9]+$" /></td>
+      <td><input type="text" name="model_sname" id="model_sname" required/></td>
+      <td><input type="text" name="seller_id" id="seller_id" required/></td>
+      <td><input type="button" name="addmodel" id="addmodel"
+        value="Add model"></td>
+    </tr>
+  </table>
+  
+  <br></br>
+  
+  <script src="js/jquery-3.5.1.js"></script>
+  <script type="text/javascript">
+    jQuery( document ).ready(function() {
+	    jQuery( "#findmodels").click(function() {
+	      var url = 'rest/model/searchForModels/sname/' +
+	        jQuery("#findmodel").val();
+	      
+	      jQuery.ajax({
+	        url: url,
+	        dataType: 'json',
+	        type: 'GET',
+	        success: function(dataF) {
+	        	jQuery('.dataF').remove();
+	        	jQuery('#header').after(createDataRowsFromJson1(dataF));
+	        	jQuery("#model_name").val('');
+	        	jQuery("#model_description").val('');
+	            jQuery("#model_price").val('');
+	        }
+	      });
+	    });
+	  });
+  
+  function createDataRowsFromJson1(dataF) {
+	    var tableContent1 = "";
+	    for (var key in dataF) {
+	      if (dataF.hasOwnProperty(key)) {
+	        tableContent1 = tableContent1 + "<tr class='dataF'>";
+	        tableContent1 = tableContent1 + "<td>";
+	        tableContent1 = tableContent1 + dataF[key].id;
+	        tableContent1 = tableContent1 + "</td>";
+	        tableContent1 = tableContent1 + "<td>";
+	        tableContent1 = tableContent1 + dataF[key].name;
+	        tableContent1 = tableContent1 + "</td>";
+	        tableContent1 = tableContent1 + "<td>";
+	        tableContent1 = tableContent1 + dataF[key].description;
+	        tableContent1 = tableContent1 + "</td>";
+	        tableContent1 = tableContent1 + "<td>";
+	        tableContent1 = tableContent1 + dataF[key].price;
+	        tableContent1 = tableContent1 + "</td>";
+	        tableContent1 = tableContent1 + "</tr>";
+	      }
+	    }
+	    return tableContent1;
+	  }
+  </script>
+  <p> Find model by seller name: </p> 
+  <input type="text" name="findmodel" id="findmodel" />
+  <input type="button" name="findmodels" id="findmodels"
+        value="Find model">
+        
+  <h3>Table of search results</h3>
+  <table style="width: 100%" border="1" id="find">
+    <tr id="header">
+      <td>Id</td>
+      <td>Name</td>
+      <td>Description</td>
+      <td>Price</td>
+    </tr>
+  </table>
+</body>
+</html>

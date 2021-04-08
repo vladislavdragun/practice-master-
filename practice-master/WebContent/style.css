@@ -1,0 +1,81 @@
+body {
+	margin:0;
+	padding:0;
+}
+
+h1{
+	text-align:center;
+}
+h2 a{
+		float:right;
+		margin-right: 2%;
+		padding-bottom:2%;
+}
+#logo{
+	height:250px;
+	width:1229px;
+	margin-left:20%;
+	background-color:red;
+}
+.header{
+	background-color:red;
+}
+
+#cinemahalltable, #visitortable, #topten{
+	margin-left: 10%;
+	margin-top: 5%;
+}
+
+.footer{
+	margin-top: 10%;
+	text-align:center;
+	background-color:red;
+	height:100px;
+	padding-top:50px;
+	color: #fff;
+	font-size: 25px;
+}
+
+table {
+border-spacing: 0 10px;
+font-family: 'Open Sans', sans-serif;
+font-weight: bold;
+}
+
+th {
+padding: 10px 20px;
+background: #56433D;
+color: #F9C941;
+border-right: 2px solid; 
+font-size: 0.9em;
+}
+th:first-child {
+text-align: left;
+}
+th:last-child {
+border-right: none;
+}
+td {
+vertical-align: middle;
+padding: 10px;
+font-size: 14px;
+text-align: center;
+border-top: 2px solid #56433D;
+border-bottom: 2px solid #56433D;
+border-right: 2px solid #56433D;
+padding-left:5px;
+}
+td:first-child {
+border-left: 2px solid #56433D;
+border-right: none;
+}
+td:nth-child(2){
+text-align: left;
+}
+
+
+ input{
+ 	font-size: 20px;
+ 	margin-left:10px;
+} 
+
